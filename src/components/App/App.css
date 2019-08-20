@@ -1,0 +1,11 @@
+.Instruction {
+    font-size: 3em;
+}
+
+.Copyright {
+    margin-top: 2px;
+}
+
+.MuiStepLabel-labelContainer {
+    margin-top: 3px !important;
+}
