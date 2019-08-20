@@ -17,6 +17,7 @@ import Box from '@material-ui/core/Box';
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
+  KeyboardDatePicker
 } from '@material-ui/pickers';
 import { ThemeProvider } from '@material-ui/styles';
 import { createMuiTheme } from '@material-ui/core';
@@ -101,11 +102,33 @@ function calculateDiff(s, e) {
   return res;
 }
 
+function calculateDayDiff(s, e) {
+  let start = moment(s);
+  let end = moment(e);
+  
+  let res = moment.duration(start.diff(end)).asDays();
+  if (res < 0) {
+    res = -res;
+  }
+
+  return res;
+}
+
 function getStepContent(step, params) {
   switch (step) {
     case 1:
       if (!params.hours) {
-        params.hours = calculateDiff(moment(params.start), moment(params.end));
+        switch (params.tab) {
+          case 0:
+          case 2:
+            params.hours = calculateDiff(moment(params.start), moment(params.end));
+            break;
+          case 1: 
+            params.hours = calculateDiff(moment(params.rangeStart), moment(params.rangeEnd));
+            params.dayDiff = calculateDayDiff(moment(params.rangeStart), moment(params.rangeEnd));
+            break;
+          default: throw new Error('Unsupported tab index');
+        }
       }
       localStorage.setItem('wage', params.wage);
       localStorage.setItem('defaultTab', params.tab);
@@ -130,49 +153,45 @@ export default function Checkout() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [start, setStart] = React.useState(null);
   const [end, setEnd] = React.useState(null);
+  const [rangeStart, setRangeStart] = React.useState(null);
+  const [rangeEnd, setRangeEnd] = React.useState(null);
+  const [rangeHours, setRangeHours] = React.useState(0);
   const [hours, setHours] = React.useState(0);
   const [value, setValue] = React.useState(defaultValue ? defaultValue : 0);
   const [wage, setWage] = React.useState(defaultWage ? defaultWage : 10.10);
 
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
-  };
+  const handleNext = () => { setActiveStep(activeStep + 1) }
+  const handleTabValue = (event, newValue) => { setValue(newValue) }
+  const handleChangeIndex = (index) => { setValue(index) }
+  
+  // Exact hours
+  const handleExactHours = (event) => { setHours(event.target.value) }
+  
+  // Date Range
+  const handleRangeStart = (date) => { setRangeStart(date) }
+  const handleRangeEnd = (date) => { setRangeEnd(date) }
+  const handleRangeHours = (event) => { setRangeHours(event.target.value) } 
 
-  const handleTabValue = (event, newValue) => {
-    setValue(newValue);
-  }
+  // Time Range
+  const handleStart = (date) => { setStart(date) }
+  const handleEnd = (date) => { setEnd(date) }
 
-  const handleChangeIndex = (index) => {
-    setValue(index);
-  }
-
-  const handleExactHours = (event) => {
-    setHours(event.target.value);
-  }
-
-  const handleStart = (date) => {
-    setStart(date);
-  }
-
-  const handleEnd = (date) => {
-    setEnd(date);
-  }
-
-  const handleWage = (event) => {
-    setWage(event.target.value);
-  }
+  const handleWage = (event) => { setWage(event.target.value) }
 
   const resetAll = () => {
     setActiveStep(0);
     setStart(null);
     setEnd(null);
+    setRangeStart(null);
+    setRangeEnd(null);
+    setRangeHours(0);
     setHours(0);
     setValue(defaultValue ? defaultValue : 0);
     setWage(defaultWage ? defaultWage : 10.10);
   }
 
   const renderButton = () => {
-    if (((start && end) || (hours)) && wage) {
+    if (((start && end) || hours || (rangeStart && rangeEnd && rangeHours)) && wage) {
       return (
         <Button
           variant="contained"
@@ -230,8 +249,9 @@ export default function Checkout() {
                         variant="fullWidth"
                         aria-label="Mode selector"
                       >
-                        <Tab label="Time Range" {...a11yProps(0)} />
-                        <Tab label="Exact" {...a11yProps(1)} />
+                        <Tab label="Exact" {...a11yProps(0)} />
+                        <Tab label="Date Range" {...a11yProps(1)} />
+                        <Tab label="Time Range" {...a11yProps(2)} />
                       </Tabs>
                     </AppBar>
                     <SwipeableViews
@@ -240,6 +260,82 @@ export default function Checkout() {
                       onChangeIndex={handleChangeIndex}
                     >
                       <TabPanel value={value} index={0} dir={theme.direction}>
+                        <Grid container spacing={3}>
+                          <Grid item xs={6} md={6}>
+                            <TextField
+                              id="wage"
+                              type="number"
+                              label="Total hours worked"
+                              fullWidth
+                              onChange={handleExactHours}
+                              value={hours}
+                            />
+                          </Grid>
+                          <Grid item xs={6} md={6}>
+                            <TextField
+                              id="wage"
+                              type="number"
+                              label="Wage"
+                              fullWidth
+                              onChange={handleWage}
+                              value={wage}
+                            />
+                          </Grid>
+                        </Grid>
+                      </TabPanel>
+                      <TabPanel value={value} index={1} dir={theme.direction}>
+                        <Grid container spacing={3}>
+                          <Grid item xs={12} md={6}>
+                          <KeyboardDatePicker
+                              margin="normal"
+                              id="date-range-start"
+                              label="Date range start"
+                              format="MM/dd/yyyy"
+                              value={rangeStart}
+                              onChange={handleRangeStart}
+                              fullWidth
+                              KeyboardButtonProps={{
+                                'aria-label': 'change date',
+                              }}
+                            />
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <KeyboardDatePicker
+                                margin="normal"
+                                id="date-range-end"
+                                label="Date range end"
+                                format="MM/dd/yyyy"
+                                value={rangeEnd}
+                                onChange={handleRangeEnd}
+                                fullWidth
+                                KeyboardButtonProps={{
+                                  'aria-label': 'change date',
+                                }}
+                              />
+                          </Grid>
+                          <Grid item xs={6} md={6}>
+                            <TextField
+                              id="rangeHours"
+                              type="number"
+                              label="Hours per day"
+                              fullWidth
+                              onChange={handleRangeHours}
+                              value={rangeHours}
+                            />
+                          </Grid>
+                          <Grid item xs={6} md={6}>
+                            <TextField
+                              id="wage"
+                              type="number"
+                              label="Wage"
+                              fullWidth
+                              onChange={handleWage}
+                              value={wage}
+                            />
+                          </Grid>
+                        </Grid>
+                      </TabPanel>
+                      <TabPanel value={value} index={2} dir={theme.direction}>
                         <Grid container spacing={3}>
                           <Grid item xs={12} md={6}>
                               <KeyboardTimePicker
@@ -279,30 +375,6 @@ export default function Checkout() {
                           </Grid>
                         </Grid>
                       </TabPanel>
-                      <TabPanel value={value} index={1} dir={theme.direction}>
-                      <Grid container spacing={3}>
-                          <Grid item xs={6} md={6}>
-                            <TextField
-                              id="wage"
-                              type="number"
-                              label="Total hours worked"
-                              fullWidth
-                              onChange={handleExactHours}
-                              value={hours}
-                            />
-                          </Grid>
-                          <Grid item xs={6} md={6}>
-                            <TextField
-                              id="wage"
-                              type="number"
-                              label="Wage"
-                              fullWidth
-                              onChange={handleWage}
-                              value={wage}
-                            />
-                          </Grid>
-                        </Grid>
-                      </TabPanel>
                     </SwipeableViews>
                     <div className={classes.buttons}>
                       { renderButton() }
@@ -312,7 +384,14 @@ export default function Checkout() {
                 {
                   activeStep === steps.length - 1 && (
                   <React.Fragment>
-                    {getStepContent(activeStep, { start, end, wage, hours: hours, tab: value })}
+                    {getStepContent(activeStep, {
+                      start,
+                      end,
+                      wage,
+                      rangeStart,
+                      rangeEnd,
+                      hours: hours,
+                      tab: value })}
                     <div className={classes.buttons}>
                       { renderButton() }
                     </div>

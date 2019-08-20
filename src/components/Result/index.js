@@ -17,7 +17,8 @@ const useStyles = makeStyles(theme => ({
 
 export default function Review(props) {
   const classes = useStyles();
-  const { hours, wage } = props.data;
+  const { hours, wage, tab, dayDiff } = props.data;
+
   const total = parseFloat(wage * hours).toFixed(2);
 
   return (
@@ -27,7 +28,18 @@ export default function Review(props) {
           <Typography variant="h6" gutterBottom className={classes.title}>
             Your earnings
           </Typography>
-          <Typography color="textSecondary" gutterBottom>You worked a {hours} hour day, earning a total of <b>${total}</b>, at ${wage} per hour.</Typography>
+          {
+            tab === 0 &&
+            <Typography color="textSecondary" gutterBottom>You worked a {hours} hour day, earning a total of <b>${total}</b>, at ${wage} per hour.</Typography>
+          }
+          {
+            tab === 2 &&
+            <Typography color="textSecondary" gutterBottom>You worked a {hours} hour day, earning a total of <b>${total}</b>, at ${wage} per hour.</Typography>
+          }
+          {
+            tab === 1 &&
+            <Typography color="textSecondary" gutterBottom>You worked for {hours} hours over the course of {dayDiff} days, earning a total of <b>${total}</b>, at ${wage} per hour.</Typography>
+          }
         </Grid>
       </Grid>
     </React.Fragment>
