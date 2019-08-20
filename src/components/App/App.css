@@ -9,3 +9,7 @@
 .MuiStepLabel-labelContainer {
     margin-top: 3px !important;
 }
+
+.MuiPaper-elevation4 {
+    box-shadow: none !important;
+}

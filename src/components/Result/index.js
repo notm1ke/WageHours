@@ -2,7 +2,6 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
   listItem: {
@@ -16,26 +15,10 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function calculateDiff(s, e) {
-  let start = moment(s);
-  let end = moment(e);
-  
-  let res = moment.duration(start.diff(end)).asHours();
-  if (res < 0) {
-    res = -res;
-  }
-
-  return res;
-}
-
 export default function Review(props) {
   const classes = useStyles();
-  const { start, end, wage, ls, prune } = props.data;
-  const timeDiff = parseFloat(calculateDiff(start, end)).toFixed(2);
-  const total = parseFloat(wage * timeDiff).toFixed(2);
-
-  if (prune) localStorage.clear();
-  if (ls) localStorage.setItem('wage', wage);
+  const { hours, wage } = props.data;
+  const total = parseFloat(wage * hours).toFixed(2);
 
   return (
     <React.Fragment>
@@ -44,7 +27,7 @@ export default function Review(props) {
           <Typography variant="h6" gutterBottom className={classes.title}>
             Your earnings
           </Typography>
-          <Typography color="textSecondary" gutterBottom>You worked a {timeDiff} hour day, earning a total of <b>${total}</b>, at ${wage} per hour.</Typography>
+          <Typography color="textSecondary" gutterBottom>You worked a {hours} hour day, earning a total of <b>${total}</b>, at ${wage} per hour.</Typography>
         </Grid>
       </Grid>
     </React.Fragment>
