@@ -8,6 +8,8 @@ import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
@@ -76,10 +78,14 @@ function getStepContent(step, params) {
 
 export default function Checkout() {
   const classes = useStyles();
+  const defaultWage = localStorage.getItem('wage');
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [start, setStart] = React.useState(null);
   const [end, setEnd] = React.useState(null);
-  const [wage, setWage] = React.useState(10.10);
+  const [wage, setWage] = React.useState(defaultWage ? defaultWage : 10.10);
+  const [saveToLS, setSaveToLS] = React.useState(false);
+  const [pruneLS, setPruneLS] = React.useState(false);
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
@@ -93,8 +99,25 @@ export default function Checkout() {
     setEnd(date);
   }
 
+  const handleSaveToLS = (bool) => {
+    setSaveToLS(!bool);
+  }
+
+  const handlePruneLS = (bool) => {
+    setPruneLS(!bool);
+  }
+
   const handleWage = (event) => {
     setWage(event.target.value);
+  }
+
+  const resetAll = () => {
+    setActiveStep(0);
+    setStart(null);
+    setEnd(null);
+    setWage(defaultWage ? defaultWage : 10.10);
+    setSaveToLS(false);
+    setPruneLS(false);
   }
 
   const renderButton = () => {
@@ -141,7 +164,7 @@ export default function Checkout() {
                 {
                   activeStep === steps.length && (
                     <React.Fragment>
-                      { window.location.reload() }
+                      { resetAll() }
                     </React.Fragment>
                   )}
                 {
@@ -184,6 +207,32 @@ export default function Checkout() {
                           value={wage}
                         />
                       </Grid>
+                      <Grid item xs={6} md={6}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={saveToLS}
+                            onChange={handleSaveToLS}
+                            value="saveToLS"
+                            color="primary"
+                          />
+                        }
+                        label="Save wage info"
+                      />
+                      </Grid>
+                      <Grid item xs={6} md={6}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={pruneLS}
+                              onChange={handlePruneLS}
+                              value="pruneLS"
+                              color="primary"
+                            />
+                          }
+                          label="Prune wage info"
+                        />
+                      </Grid>
                     </Grid>
                       <div className={classes.buttons}>
                         { renderButton() }
@@ -193,7 +242,7 @@ export default function Checkout() {
                 {
                   activeStep === steps.length - 1 && (
                   <React.Fragment>
-                    {getStepContent(activeStep, { start, end, wage })}
+                    {getStepContent(activeStep, { start, end, wage, ls: saveToLS, prune: pruneLS })}
                     <div className={classes.buttons}>
                       { renderButton() }
                     </div>

@@ -30,9 +30,12 @@ function calculateDiff(s, e) {
 
 export default function Review(props) {
   const classes = useStyles();
-  const { start, end, wage } = props.data;
+  const { start, end, wage, ls, prune } = props.data;
   const timeDiff = parseFloat(calculateDiff(start, end)).toFixed(2);
   const total = parseFloat(wage * timeDiff).toFixed(2);
+
+  if (prune) localStorage.clear();
+  if (ls) localStorage.setItem('wage', wage);
 
   return (
     <React.Fragment>
