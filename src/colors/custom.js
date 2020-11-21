@@ -1,5 +1,4 @@
-// TODO: Add varients
-const tlue = {
+const custom = {
     50: '#66a7c5',
     100: '#66a7c5',
     200: '#66a7c5',
@@ -16,4 +15,4 @@ const tlue = {
     A700: '#66a7c5'
 }
 
-export default tlue;
+export default custom;

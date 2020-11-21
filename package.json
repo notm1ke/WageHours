@@ -10,16 +10,14 @@
     "moment": "^2.24.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-scripts": "3.1.1",
+    "react-scripts": "^4.0.0",
     "react-swipeable-views": "^0.13.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "homepage": "https://m1ke.co/wagehours",
   "eslintConfig": {
@@ -42,7 +40,6 @@
     "date-fns": "^2.0.0-alpha.31"
   },
   "devDependencies": {
-    "gh-pages": "^2.1.1",
     "@date-io/date-fns": "^1.0.1",
     "date-fns": "^2.0.0-alpha.31"
   }
